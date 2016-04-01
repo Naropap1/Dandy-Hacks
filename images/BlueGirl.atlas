@@ -1,0 +1,103 @@
+
+BlueGirl.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+jumpL
+  rotate: false
+  xy: 29, 52
+  size: 23, 49
+  orig: 23, 49
+  offset: 0, 0
+  index: -1
+jumpR
+  rotate: false
+  xy: 54, 53
+  size: 22, 48
+  orig: 22, 48
+  offset: 0, 0
+  index: -1
+right
+  rotate: false
+  xy: 50, 3
+  size: 19, 47
+  orig: 19, 47
+  offset: 0, 0
+  index: -1
+right
+  rotate: false
+  xy: 78, 52
+  size: 20, 49
+  orig: 20, 49
+  offset: 0, 0
+  index: -1
+right
+  rotate: false
+  xy: 121, 53
+  size: 20, 48
+  orig: 20, 48
+  offset: 0, 0
+  index: -1
+right
+  rotate: false
+  xy: 1, 3
+  size: 26, 48
+  orig: 26, 48
+  offset: 0, 0
+  index: -1
+left
+  rotate: false
+  xy: 29, 3
+  size: 19, 47
+  orig: 19, 47
+  offset: 0, 0
+  index: -1
+left
+  rotate: false
+  xy: 143, 53
+  size: 19, 48
+  orig: 19, 48
+  offset: 0, 0
+  index: -1
+left
+  rotate: false
+  xy: 100, 52
+  size: 19, 49
+  orig: 19, 49
+  offset: 0, 0
+  index: -1
+left
+  rotate: false
+  xy: 1, 53
+  size: 26, 48
+  orig: 26, 48
+  offset: 0, 0
+  index: -1
+stillL
+  rotate: false
+  xy: 71, 2
+  size: 19, 48
+  orig: 19, 48
+  offset: 0, 0
+  index: -1
+stillL
+  rotate: false
+  xy: 113, 3
+  size: 18, 47
+  orig: 18, 47
+  offset: 0, 0
+  index: -1
+stillR
+  rotate: false
+  xy: 133, 4
+  size: 18, 47
+  orig: 18, 47
+  offset: 0, 0
+  index: -1
+stillR
+  rotate: false
+  xy: 92, 1
+  size: 19, 49
+  orig: 19, 49
+  offset: 0, 0
+  index: -1

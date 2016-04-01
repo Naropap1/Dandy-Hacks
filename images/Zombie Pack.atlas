@@ -1,0 +1,61 @@
+
+Zombie Pack.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+StunL
+  rotate: false
+  xy: 1, 1
+  size: 39, 55
+  orig: 39, 55
+  offset: 0, 0
+  index: -1
+StunR
+  rotate: false
+  xy: 42, 1
+  size: 39, 55
+  orig: 39, 55
+  offset: 0, 0
+  index: -1
+Right3
+  rotate: false
+  xy: 83, 8
+  size: 39, 48
+  orig: 39, 48
+  offset: 0, 0
+  index: -1
+Left3
+  rotate: false
+  xy: 124, 8
+  size: 38, 48
+  orig: 38, 48
+  offset: 0, 0
+  index: -1
+Right2
+  rotate: false
+  xy: 164, 7
+  size: 36, 49
+  orig: 36, 49
+  offset: 0, 0
+  index: -1
+Left2
+  rotate: false
+  xy: 202, 9
+  size: 35, 47
+  orig: 35, 47
+  offset: 0, 0
+  index: -1
+Right1
+  rotate: false
+  xy: 239, 8
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+Left1
+  rotate: false
+  xy: 273, 9
+  size: 28, 47
+  orig: 28, 47
+  offset: 0, 0
+  index: -1
