@@ -1,4 +1,4 @@
-# NapTimes 0.0.2
+# NapTimes 0.1.0
 #
 # Made entirely by Santiago Loane and nobody else at all
 #
@@ -12,6 +12,9 @@ from tkinter import ttk
 
 #im = Image.open("images/pillow.png")
 
+occupied = [False]*288
+for x in range(7*12,11*12):
+	occupied[x]=True
 
 
 def sleep(*args):
@@ -31,9 +34,11 @@ root.title("NapTime bEtA")
 
 busy = ttk.Style()
 busy.configure('busy.TButton',background='#D96267')
+free = ttk.Style()
+free.configure('free.TButton',background='#62D962')
 
 #makes the primary display widget
-mainframe = ttk.Frame(root, padding = "20 20 20 20")
+mainframe = ttk.Frame(root, padding = "2 2 2 2")
 mainframe.grid(column=0, row=0, sticky=(N,W,E,S))
 mainframe.columnconfigure(0,weight=1)
 mainframe.rowconfigure(1,weight=1)
@@ -43,10 +48,14 @@ weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "S
 for i in range(0,len(weekdays)):
 	ttk.Label(mainframe, text=weekdays[i]).grid(column=i+1, row=1, sticky=N)
 
-#Fills other tiles with blank schedule
-for i in range(0,len(weekdays)):
-	for j in range(0, 12):
-		ttk.Button(mainframe, text="%d AM" %(j+1), command=clrtoggle(i,j)).grid(column=i+1, row=j+2)
+#Adds hour labels
+for j in range(0, 11): 
+	ttk.Label(mainframe, text="%d AM" %(j+1)).grid(column=0, row=(j+3)*12, rowspan=12)
+for k in range(12, 23): 
+	ttk.Label(mainframe, text="%d PM" %(k-12+1)).grid(column=0, row=(k+4)*12, rowspan=12)
+
+ttk.Label(mainframe, text="12 AM").grid(column=0, row=2*12, rowspan=12)
+ttk.Label(mainframe, text="12 PM").grid(column=0, row=14*12, rowspan=12)
 
 #hours = StringVar()
 #time = StringVar()
