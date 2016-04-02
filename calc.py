@@ -2,7 +2,7 @@
 #
 import math
 
-### IDEAL NAP TIMES (by priority)
+### IDEAL NAP TIMES
 #
 # 90-120 min => full, deep, REM sleep
 #

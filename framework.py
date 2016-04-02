@@ -17,6 +17,7 @@ def sleep(*args):
 
 def pillow(*args):
 #	im.show()
+	"woo"
 
 #beginning of a tkinter window
 root = Tk()
