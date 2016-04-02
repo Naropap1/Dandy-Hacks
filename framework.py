@@ -47,6 +47,8 @@ ttk.Label(mainframe, text="take a nap!").grid(column=3, row=2, sticky=W)
 
 ttk.Button(mainframe, text = "Go to sleep now", command=pillow).grid(column=4, row=2, columnspan=2)
 
+#image.grid(row=3, column=6, rowspan=2, columnspan=2, sticky = (N,E,S,W), padx=5, pady=5)
+
 #adds extra padding for each element in grid
 for child in mainframe.winfo_children():
 	child.grid_configure(padx=5, pady=5)
