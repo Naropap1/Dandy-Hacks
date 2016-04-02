@@ -26,7 +26,7 @@ def is_free(occupied, start_time, length):
 		try:
 			if occupied[x]: freeness = False
 			break
-		except IndexError
+		except IndexError:
 			pass
 	return freeness
 
@@ -47,7 +47,7 @@ def nap_zone(sleeptime, waketime):
 
 def freetimes(occupied):
 	free_times=[] #array with timestamp for beginning of each "free" block
-	for x in range(0,288)
+	for x in range(0,288):
 		if is_free(occupied, x, 4): #only check for at least 20 minutes of free time
 			free_times.append(x)
 	return free_times
@@ -58,18 +58,18 @@ def possible_naps(occupied):
 	possible_times = freetimes(occupied)
 
 	power_naps=[]  #possible 20 min naps
-	for i in range(len(possible_times))
+	for i in range(len(possible_times)):
 		if is_free(occupied, possible_times[i], 4):
 			power_naps.append(possible_times[i])
 	short_naps=[]  #possible 45 min naps
-	for i in range(len(possible_times))
+	for i in range(len(possible_times)):
 		if is_free(occupied, possible_times[i], 9):
 			power_naps.append(possible_times[i])
 	memory_naps=[] #possible 60 min naps
-	for i in range(len(possible_times))
+	for i in range(len(possible_times)):
 		if is_free(occupied, possible_times[i], 8):
 			power_naps.append(possible_times[i])
 	rest_naps=[]   #possible 90 min naps
-	for i in range(len(possible_times))
+	for i in range(len(possible_times)):
 		if is_free(occupied, possible_times[i], 18):
 			power_naps.append(possible_times[i])
