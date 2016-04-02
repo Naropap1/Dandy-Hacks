@@ -8,15 +8,15 @@
 #imports needed libraries, tkinter is the graphics & display tool
 from tkinter import *
 from tkinter import ttk
-from PIL import Image
+#from PIL import Image
 
-im = Image.open("images/pillow.png")
+#im = Image.open("images/pillow.png")
 
 def sleep(*args):
 	"Zzzz"
 
 def pillow(*args):
-	im.show()
+#	im.show()
 
 #beginning of a tkinter window
 root = Tk()
