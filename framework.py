@@ -10,11 +10,13 @@ from tkinter import *
 from tkinter import ttk
 from PIL import Image
 
-im = Image.open("images/running.png")
-#im.show()
+im = Image.open("images/pillow.png")
 
 def sleep(*args):
 	"Zzzz"
+
+def pillow(*args):
+	im.show()
 
 #beginning of a tkinter window
 root = Tk()
@@ -42,6 +44,8 @@ for i in range(0,len(weekdays)):
 ttk.Label(mainframe, text="Hours").grid(column=1, row=2, sticky=W)
 ttk.Label(mainframe, text="you should").grid(column=2, row=2, sticky=E)
 ttk.Label(mainframe, text="take a nap!").grid(column=3, row=2, sticky=W)
+
+ttk.Button(mainframe, text = "Go to sleep now", command=pillow).grid(column=4, row=2, columnspan=2)
 
 #adds extra padding for each element in grid
 for child in mainframe.winfo_children():
