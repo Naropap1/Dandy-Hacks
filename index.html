@@ -263,17 +263,31 @@
 				timeList.unshift(sleepStart);
 
 				console.log(timeList);
-				
+				console.log(JSON.stringify(timeList));
+				var data = timeList;
 				$.ajax({
-					url: "Brenden/cgi-bin/calc.py",
-					
+					type: "POST",
+					data: JSON.stringify(timeList),
+					contentType: "application/json",
+					url: "/naps",
+					success: function(data) {
+						console.log("Success");
+						
+						$("#content").html(data);
+						
+						timeList = [];
+					}
+
+				});
+/*
+				$.ajax({
+					//url: "cgi-bin/calc.py",
+					url: "/nap/<timeList>",
 					//data: {
 					//	times: timeList
 					//},
 					data: {
-						times: JSON.stringify(timeList),
-						//times: timeList,
-						test: "test"
+						times: 7
 					},
 					
 					type: "POST",
@@ -287,10 +301,25 @@
 						
 						timeList = [];
 					}
-				});
+				});*/
+/*		
+				$.ajax({
+       			 type: "POST",
+       			 url: "/json",
+       			 data: {
+						times: JSON.stringify(timeList),
+						//times: timeList,
+						test: "test"
+					},,
+
+       			 dataType: "json"            
+    			}).done(function(data){
+    				
+        console.log(data);
+    });
+*/
 			});
 		});
 	</script>
-
 
 </html>
