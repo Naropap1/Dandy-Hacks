@@ -263,20 +263,18 @@ def heuristic(naps):
 
 
 #recursive tool to find all possible combinations of naps in a person's day
-#TODO: make this only check at already determined available "free" timeslots instead of all the time always forever
-# ^ might be SUUUUUUUPER necessary bc of computation time? this method gets called a lot I imagine
-def daily_naps_rec(curr_naps, occupied, time):
+def daily_naps_rec(curr_naps, occupied, times, index):
 	if time >= 288:
 		return curr_naps
 	#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
-	temp = add_nap(curr_naps, occupied, time)
+	temp = add_nap(curr_naps, occupied, times[index])
 
 	#if making the nap here is an overall gain, make it here!
 	#otherwise, keep on truckin'
-	if (heuristic (temp) < heuristic(daily_naps_rec(curr_naps, occupied, time+1)):
-		return daily_naps_rec(curr_naps, occupied, time+1)
+	if (heuristic (temp) < heuristic(daily_naps_rec(curr_naps, occupied, times, index+1))):
+		return daily_naps_rec(curr_naps, occupied, times, index+1)
 	else:
-		return daily_naps_rec(temp, occupied, time+1)
+		return daily_naps_rec(temp, occupied, times, index+1)
 
 #goal is to maintain ~ 8 hrs a day
 def daily_naps(sleep_time, focus):
@@ -287,7 +285,7 @@ def daily_naps(sleep_time, focus):
 	#find your ideal nap schedule for today! v
 	#TODO: make this return top ~3? Could be done with an 3-long schedule-state array running as a queue
 	#TODO: make this know when it's a bad idea to take a nap and its better to not take one at all
-	schedule = daily_naps_rec(curr_naps, occupied, 0)
+	schedule = daily_naps_rec(curr_naps, occupied, freetimes(occupied),0)
 	return_string = '{'
 
 	#formulate the return string to JSON. might need debugging
