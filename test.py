@@ -16,20 +16,20 @@ wk1e = int(12*60/5)
 wk2s = int(14*60/5)
 wk2e = int(23*60/5)
 
-occupied = [True] * 288
+occupied = [False] * 288
 
 #print(occupied)
 #print(len(occupied))
 
 for x in range(wk1s,wk1e):
-	occupied[x]=False
+	occupied[x]=True
 for y in range(wk2s,wk2e):
-	occupied[x]=False
+	occupied[y]=True
 
 for i in range(0, waketime):
-	occupied[x]=False
+	occupied[i]=True
 for j in range(bedtime, 288):
-	occupied[x]=False
+	occupied[j]=True
 
 #calc.set_sleeptimes(waketime, bedtime, time_slept)
 #calc.set_occ(occupied)

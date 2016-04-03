@@ -244,7 +244,7 @@ def add_nap(curr_naps, occupied, time, focus, nap_count):
 				nap_count += 1
 				#print("nap_count:: {0}".format(nap_count))
 
-				print(temp_curr)
+				#print(temp_curr)
 				return temp_curr
 				break
 	return temp_curr
@@ -260,7 +260,7 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 	#weighting for how important each heuristic value is
 	diff_weight = 1.5
 	type_weight = 2
-	hours_weight = 3
+	hours_weight = 10
 
 	#calculates the difference between each naptime and the "ideal" nap window
 	#uses nap start time
@@ -303,7 +303,7 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 #recursive tool to find all possible combinations of naps in a person's day
 def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, sleep_time, waketime, bedtime):
 	#print("number of times to be checked: {0}".format(len(times)))
-	if (index >= len(times)) or (nap_count >= 3) or (depth >= 15):
+	if (index >= len(times)) or (nap_count >= 3) or (depth >= 1000):
 		return curr_naps
 	else:
 		#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
@@ -325,8 +325,8 @@ def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, s
 			return not_added
 		elif (new_val > old_val):
 			print("new one is better")
-			print("number of naps added: {0}".format(nap_count))
 			nap_count += 1
+			print("number of naps added: {0}".format(nap_count))
 			return daily_naps_rec(if_added, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
 		else:
 			print("same vals")
