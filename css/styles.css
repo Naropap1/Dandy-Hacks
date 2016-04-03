@@ -55,6 +55,11 @@ body{
 	max-width: 1024px; 
 }
 
+#down a:hover{
+	height:150px;
+	width:150px;
+}
+
 h1,h2,h3{
 	text-align: center;
 	padding:20px;
@@ -106,6 +111,23 @@ a {
     transition: all .2s ease-in-out;
 }
 
+a:hover{
+	text-decoration: none;
+}
+
+.navbar-custom li a:hover,
+.navbar-custom li a:focus,
+.navbar-custom li a:active
+{
+	background-color: transparent;
+	outline:0;
+}
+
+.navbar-custom a:hover{
+	font-size: 15px;
+	color:white;
+}
+
 ul.img-list {
   list-style-type: none;
   margin: 0;
@@ -146,3 +168,4 @@ span.text-content span {
 ul.img-list li:hover span.text-content {
   opacity: 1;
 }
+
