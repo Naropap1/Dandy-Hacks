@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Nap Times</title>
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	</head>
+	
+	<body>
+		<div id="content">
+			<div id="in-form">
+				<p>When did you fall asleep last night? (Optional)</p>
+				<input id="sleep-start" type="text" placeholder="hh:mm" size="8"> 
+				<select id="sleep-start-select">
+					<option value="AM">AM</option>
+					<option value="PM">PM</option>
+				</select>
+				
+				<p>When did you wake up today? (Optional)</p>
+				<input id="sleep-end" type="text" placeholder="hh:mm" size="8"> 
+				<select id="sleep-end-select">
+					<option value="AM">AM</option>
+					<option value="PM">PM</option>
+				</select>
+				
+				<p>When are you busy today?</p>
+				
+				Start:
+				<input id="start-time" type="text" placeholder="hh:mm" size="8"> 
+				<select id="start-select">
+					<option value="AM">AM</option>
+					<option value="PM">PM</option>
+				</select>
+				to
+				<input id="end-time" type="text" placeholder="hh:mm" size="8">
+				<select id="end-select">
+					<option value="AM">AM</option>
+					<option value="PM">PM</option>
+				</select>
+				<button id="add-time" class="small-button">Add Time</button>
+				<button id="submit" class="small-button">Submit Info</button>
+			</div>
+			
+			<div id="busy-list">
+			
+			</div>
+		</div>
+	</body>
+	
+	<script>
+		$(document).ready(function() {
+			var timeList = [];
+			
+			$("#add-time").click(function () {
+				var beginTime = $("#start-time").val();
+				var beginHalf = $("#start-select").val();
+				var endTime = $("#end-time").val();
+				var endHalf = $("#end-select").val();
+				
+				//should add checks that time interval is not already there, start time
+				//before end time, correct format (hh:mm), etc.
+				
+				if(beginTime != "" && endTime != "")
+				{
+					beginTime = beginTime + " " + beginHalf;
+					endTime = endTime + " " + endHalf;
+					
+					timeList.push(beginTime);
+					timeList.push(endTime);
+					
+					$("#busy-list").prepend("<p>" + beginTime + " to " + endTime +"</p>");
+				}
+				
+				//clear input field
+				$("#start-time").val('');
+				$("#end-time").val('');
+			});
+			
+			$("#submit").click(function() {
+				var sleepStart = $("#sleep-start").val();
+				var sleepStartHalf = $("#sleep-start-select").val();
+				
+				var sleepEnd = $("#sleep-start").val();
+				var sleepEndHalf = $("#sleep-start-select").val();
+				
+				if(sleepStart == "" && sleepEnd == "")
+				{
+					//change these to change defaults
+					sleepStart = "11:00 PM";
+					sleepEnd = "7:00 AM"
+				}
+				
+				else
+				{
+					sleepStart = sleepStart + " " + sleepStartHalf;
+					sleepEnd = sleepEnd + " " + sleepEndHalf;
+				}
+				
+				//send sleep interval as first 2 values of list
+				//if no sleep times are provided, defaults to 11pm to 7am
+				timeList.unshift(sleepEnd);
+				timeList.unshift(sleepStart);
+
+				console.log(timeList);
+				
+				$.ajax({
+					url: "cgi-bin/calc.py",
+					
+					//data: {
+					//	times: timeList
+					//},
+					data: {
+						times: JSON.stringify(timeList),
+						//times: timeList,
+						test: "test"
+					},
+					
+					type: "POST",
+					
+					dataType: "html",
+					
+					success: function(data) {
+						console.log("Success");
+						
+						$("#content").html(data);
+						
+						timeList = [];
+					}
+				});
+			});
+		});
+	</script>
+</html>
