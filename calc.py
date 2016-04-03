@@ -35,13 +35,28 @@ def is_free(occupied, start_time, length):
 
 #converts hours to 5-minute intervals
 #assuming value between 0 and 24
-def hour_converter(hours):
-	return min_converter(hours*60)
+def hour_converter(raw_hours):
+	return min_converter(raw_hours*60)
 
 #converts minutes to 5-minute intervals
 #assuming value between 0 and 1440
-def min_converter(minutes):
-	return (minutes/5)
+def min_converter(raw_minutes):
+	return (raw_minutes/5)
+
+def num_format(chunks):
+
+	hours = ((chunks*5)%60)
+	minutes = ((chunks*5)-(hours*60))
+
+	if hours < 12:
+		if hours==0:
+			return "%d:%d AM" %12 %minutes
+		else: return "%d:%d AM" %hours %minutes
+	else:
+		if hours==12:
+			return "%d:%d AM" %12 %minutes
+		else: return "%d:%d PM" %(hours-12) %minutes
+
 
 #Find your ideal time of day for a nap! Depends on user's sleeping schedule
 def nap_zone(sleeptime, waketime):
@@ -234,4 +249,17 @@ def daily_naps(sleep_time, focus):
 	duration = sleep_time
 	curr_naps = [0]*len(occupied)
 
-	#for x in range(0, len(top_naps))
+	schedule = daily_naps_rec(curr_naps, occupied, 0)
+	return_string = '{'
+
+	for i in range(0,len(schedule)):
+		if (schedule[i]==1) and (schedule[i-1]==0):
+			return_string = return_string + 'begin:' + num_format(i) + ','
+		if (schedule[i]==1) and (schedule[i+1]!=1):
+			return_string = return_string + 'end:' + num_format(i) + ','
+
+	return_string = return_string + '}'
+
+	return json.dumps({return_string})
+
+
