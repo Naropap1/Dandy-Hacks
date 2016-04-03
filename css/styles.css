@@ -126,6 +126,10 @@ a:hover{
 	outline:0;
 }
 
+.navbar-custom li{
+	padding-top: 10px;
+}
+
 .navbar-custom a:hover{
 	font-size: 15px;
 	color:white;
@@ -178,3 +182,4 @@ option,
 #in-form select{
 	color:#221c1c;
 }
+
