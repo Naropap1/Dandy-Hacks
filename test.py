@@ -34,4 +34,4 @@ for j in range(bedtime, 288):
 #calc.set_sleeptimes(waketime, bedtime, time_slept)
 #calc.set_occ(occupied)
 
-calc.daily_naps(occupied, waketime, bedtime, 0)
+calc.daily_naps(occupied, waketime, bedtime, 1)

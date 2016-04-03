@@ -239,7 +239,10 @@ def add_nap(curr_naps, occupied, time, focus, nap_count):
 					#print("we in loop y")
 				#print("out of loop y")
 				for z in range(time+focus_val, time+focus_val+12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
-					temp_curr[z] = 2
+					try:
+						temp_curr[z] = 2
+					except IndexError:
+						pass
 					#print("in loop z")
 				nap_count += 1
 				#print("nap_count:: {0}".format(nap_count))
@@ -287,14 +290,17 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 
 	sleep_val = 0
 	sleep_diff = 96-duration
+
+	print("total time slept: {0}".format(sleep_diff))
+
 	if -12 < sleep_diff < 12:
 		sleep_val = 1000-abs(sleep_diff)
 	else:
-		sleep_val = 1000-((sleep_diff)*(sleep_diff))
+		sleep_val = 1000-((sleep_diff)*10)
 
 	#return the heuristic value for this schedule state-space! yaaaaaay!
 	#TODO: make this better and smarter somehow! aka tweak as needed/desired
-	val += (sleep_val*hours_weight)+((1000-((avg_diff*avg_diff)/1000))*diff_weight)
+	val += (sleep_val*hours_weight)+((100-((avg_diff*2)/100))*diff_weight)
 	#if nap_count == 0:
 	#	val = -9999
 	return val
@@ -303,7 +309,7 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 #recursive tool to find all possible combinations of naps in a person's day
 def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, sleep_time, waketime, bedtime):
 	#print("number of times to be checked: {0}".format(len(times)))
-	if (index >= len(times)) or (nap_count >= 3) or (depth >= 1000):
+	if (index >= len(times)) or (nap_count > 3) or (depth >= 1000):
 		return curr_naps
 	else:
 		#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
@@ -358,7 +364,7 @@ def daily_naps(occupied, waketime, bedtime, focus):
 		if (schedule[i]==1) and (schedule[i-1]==0):
 			return_string = return_string + 'begin:"' + num_format(i) + '",'
 		if (schedule[i]==1) and (schedule[i+1]!=1):
-			return_string = return_string + 'end:"' + num_format(i) + '",'
+			return_string = return_string + 'end:"' + num_format(i+1) + '",'
 
 	print("return string: {0}".format(return_string))
 	print(schedule)
