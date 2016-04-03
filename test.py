@@ -8,8 +8,8 @@
 import calc
 from array import array
 
-waketime = int(4*60/5)
-bedtime = int(23*60/5)
+waketime = int(3*60/5)
+bedtime = int(10*60/5)
 
 wk1s = int(9*60/5)
 wk1e = int(12*60/5)
@@ -34,4 +34,4 @@ for j in range(bedtime, 288):
 #calc.set_sleeptimes(waketime, bedtime, time_slept)
 #calc.set_occ(occupied)
 
-calc.daily_naps(occupied, waketime, bedtime, 1)
+calc.daily_naps(occupied, waketime, bedtime, 0)
