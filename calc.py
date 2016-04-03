@@ -1,7 +1,7 @@
 # do the math stuff here i guess?
 #
 import math
-
+import json
 ### IDEAL NAP TIMES
 #
 # 90-120 min => full, deep, REM sleep
@@ -14,13 +14,24 @@ import math
 
 
 #boolean array of 5-minute intervals, tells whether or not this person is free at that time
-occupied = [False]*288
-travel_time = 0
-nap_type = 0 #0=no emphasis, 1=power nap, 2=rest nap, 3=study nap
+a_occupied = [False]*288
+a_travel_time = 0
+a_bedtime = 0
+a_waketime = 0
+a_sleep_time = 0
+a_nap_type = 0 #0=no emphasis, 1=power nap, 2=rest nap, 3=study nap
 
 #computes the average of two numbers (i don't think i actually use it)
 def average(val1, val2):
 	return (val1+val2)/2
+
+def set_occ(input_times):
+	a_occupied = input_times
+
+def set_sleeptimes(input_wake, input_sleep, input_sleeptime):
+	a_waketime = input_wake
+	a_bedtime = input_sleep
+	a_sleep_time = input_sleeptime
 
 #boolean function to find if a given time interval is comepletely free
 #NOTE: times are represented in 5 minute intervals
@@ -28,8 +39,9 @@ def is_free(occupied, start_time, length):
 	freeness = True
 	for x in range(start_time, start_time+length):
 		try:
-			if occupied[x]: freeness = False
-			break
+			if occupied[x]: 
+				freeness = False
+				break
 		except IndexError:
 			pass
 	return freeness
@@ -53,18 +65,18 @@ def num_format(chunks):
 
 	if hours < 12:
 		if hours==0:
-			return "%d:%d AM" %12 %minutes
-		else: return "%d:%d AM" %hours %minutes
+			return "{0}:{1} AM".format(12,minutes)
+		else: return "{0}:{1} AM".format(hours,minutes)
 	else:
 		if hours==12:
-			return "%d:%d AM" %12 %minutes
-		else: return "%d:%d PM" %(hours-12) %minutes
+			return "{0}:{1} AM".format(12,minutes)
+		else: return "{0}:{1} PM".format((hours-12),minutes)
 
 
 #Find your ideal time of day for a nap! Depends on user's sleeping schedule
-def nap_zone(sleeptime, waketime):
+def nap_zone(waketime, bedtime):
 	normfactor = 51.2
-	goal = 4.67*((sleeptime+waketime)/2)-normfactor
+	goal = 4.67*((bedtime+waketime)/2)-normfactor
 
 #finds all the distinct "blocks" of 20+ min of free time in their schedule -- for napping!!
 def freetimes(occupied):
@@ -100,7 +112,7 @@ def possible_naps(occupied):
 #finds the best time to take a nap that day
 #based on preferred nap type, proximity to the "ideal" naptime
 #aka if you're only gonna take ONE nap, make it this one
-def best_nap(occupied, focus):
+def best_nap(occupied, focus, waketime, bedtime):
 
 	possible_naps(occupied)
 
@@ -135,28 +147,28 @@ def best_nap(occupied, focus):
 	#calculates a heuristic value based on proximity to ideal nap time for each type of nap (uses start times)
 	#compares it to current max value for its type of nap and keeps track of the start time for the running "best" naptime
 	for x in range(0, len(power_naps)):
-		diff = abs(power_naps[x]-naptime)
+		diff = abs(power_naps[x]-nap_zone(waketime,bedtime))
 		tmp_val = 100-(diff*diff)
 		if tmp_val>pwr_val:
 			pwr_val=tmp_val
 			top_naps[0]=power_naps[x]
 
 	for x in range(0, len(rest_naps)):
-		diff = abs(rest_naps[x]-naptime)
+		diff = abs(rest_naps[x]-nap_zone(waketime,bedtime))
 		tmp_val = 100-(diff*diff)
 		if tmp_val>rst_val:
 			rst_val=tmp_val
 			top_naps[1]=rest_naps[x]
 
 	for x in range(0, len(short_naps)):
-		diff = abs(short_naps[x]-naptime)
+		diff = abs(short_naps[x]-nap_zone(waketime,bedtime))
 		tmp_val = 100-(diff*diff)
 		if tmp_val>shrt_val:
 			shrt_val=tmp_val
 			top_naps[2]=short_naps[x]
 
 	for x in range(0, len(study_naps)):
-		diff = abs(study_naps[x]-naptime)
+		diff = abs(study_naps[x]-nap_zone(waketime, bedtime))
 		tmp_val = 100-(diff*diff)
 		if tmp_val>stdy_val:
 			stdy_val=tmp_val
@@ -185,7 +197,7 @@ def best_nap(occupied, focus):
 #attempts to "add" a nap to your current schedule at the current time.
 #if it can't, it will return the same nap schedule
 #also adds 1 hour of "dead" time after each nap before you're allowed to nap again (nap cooldown)
-def add_nap(curr_naps, occupied, time, focus):
+def add_nap(curr_naps, occupied, time, focus, nap_count):
 	#order array is the order that we should try each type of nap (0 = power nap, 1 = rest nap, 2 = short nap, 3 = study naps)
 	if focus == 1:
 		order = [0,1,2,3]
@@ -205,21 +217,23 @@ def add_nap(curr_naps, occupied, time, focus):
 	#TODO: Make this account for travel time to & from napzones (can this be fixed elswhere, like in the free time finder method?)
 	for x in range(0, len(intervals)):
 
-		focusval = intervals[order[x]]
+		focus_val = intervals[order[x]]
 
 		#check to make sure that the user is free in this time interval. Should always be true.
 		if ((curr_naps[time]==0) and (occupied[time]==False)):
 			if(is_free(occupied, time, focus_val)):
-				for y in range(time, time+focusval): # fill in the schedule for the time period of the nap
+				print("nap found! at time {0} and focus_val {1}".format(time, focus_val))
+				for y in range(time, time+focus_val): # fill in the schedule for the time period of the nap
 					temp_curr[time] == 1
-				for z in range(time+focusval, 12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
+				for z in range(time+focus_val, 12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
 					temp_curr[time] == 2
-				break
+				nap_count += 1
+				return temp_curr
 	return temp_curr
 
 #determines a heuristic value from the current state-space of nap schedule
 #TODO: revamp this so instead of 1 boolean array, it uses a smarter & more dynamic multi-array/multidimensional-array system
-def heuristic(naps):
+def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 
 	val = 0
 	duration = sleep_time		#total number of hours slept today (starts at just overnight sleep)
@@ -238,7 +252,7 @@ def heuristic(naps):
 		if naps[i] == 1:
 			duration += 1
 			if naps[i-1] != 1:
-				diffs.append(abs(i-naptime))
+				diffs.append(abs(i-nap_zone(waketime,bedtime)))
 
 	#calculate the average across all the naptime-idealtime differences
 	#TODO: make this not use an average and find a better way to calculate the difference value
@@ -247,7 +261,11 @@ def heuristic(naps):
 	for k in range(0, len(diffs)):
 		sum += diffs
 		n += 1
-	avg_diff = sum/n
+	if n == 0:
+		avg_diff = 0
+	else: 
+		print("something went wrong, uh-oh!")
+		avg_diff = sum/n
 
 	sleep_val = 0
 	sleep_diff = 96-duration
@@ -257,36 +275,48 @@ def heuristic(naps):
 		sleep_val = 100-((sleep_diff)*(sleep_diff))
 
 	#return the heuristic value for this schedule state-space! yaaaaaay!
-	#TODO: make this better and smarter somehow!
+	#TODO: make this better and smarter somehow! aka tweak as needed/desired
 	val += (sleep_val*hours_weight)+((100-(avg_diff*avg_diff))*diff_weight)
+	if nap_count==0:
+		val = -9999
 	return val
 
 
 #recursive tool to find all possible combinations of naps in a person's day
-def daily_naps_rec(curr_naps, occupied, times, index):
-	if time >= 288:
+def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, sleep_time, waketime, bedtime):
+	print("number of times to be checked: {0}".format(len(times)))
+	if (index >= len(times)) or (nap_count >= 3) or (depth >= 11):
 		return curr_naps
-	#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
-	temp = add_nap(curr_naps, occupied, times[index])
-
-	#if making the nap here is an overall gain, make it here!
-	#otherwise, keep on truckin'
-	if (heuristic (temp) < heuristic(daily_naps_rec(curr_naps, occupied, times, index+1))):
-		return daily_naps_rec(curr_naps, occupied, times, index+1)
 	else:
-		return daily_naps_rec(temp, occupied, times, index+1)
+		#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
+		if_added = add_nap(curr_naps, occupied, times[index], focus, nap_count)
+		not_added = daily_naps_rec(curr_naps, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
+		#if making the nap here is an overall gain, make it here!
+		#otherwise, keep on truckin'
+		if (heuristic(if_added,nap_count,sleep_time,waketime, bedtime) < heuristic(not_added,nap_count,sleep_time,waketime, bedtime)):
+			print("old one is better")
+			return not_added
+		else:
+			print("new one is better")
+			print("number of naps added: {0}".format(nap_count))
+			return daily_naps_rec(if_added, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
 
 #goal is to maintain ~ 8 hrs a day
-def daily_naps(sleep_time, focus):
+def daily_naps(occupied, waketime, bedtime, sleep_time, focus):
+
+	print("occupied array")
+	print(occupied)
 
 	duration = sleep_time
-	curr_naps = [0]*len(occupied)
+	curr_naps = [0] * len(occupied)
 
 	#find your ideal nap schedule for today! v
 	#TODO: make this return top ~3? Could be done with an 3-long schedule-state array running as a queue
 	#TODO: make this know when it's a bad idea to take a nap and its better to not take one at all
-	schedule = daily_naps_rec(curr_naps, occupied, freetimes(occupied),0)
-	return_string = '{'
+	schedule = daily_naps_rec(curr_naps, occupied, freetimes(occupied),0,focus,0,0,sleep_time,waketime,bedtime)
+	return_string = ''
+
+	#print("occupied length: {0}".format(len(occupied)))
 
 	#formulate the return string to JSON. might need debugging
 	for i in range(0,len(schedule)):
@@ -295,7 +325,7 @@ def daily_naps(sleep_time, focus):
 		if (schedule[i]==1) and (schedule[i+1]!=1):
 			return_string = return_string + 'end:' + num_format(i) + ','
 
-	return_string = return_string + '}'
+	print("return string: {0}".format(return_string))
 
 	return json.dumps({return_string})
 
