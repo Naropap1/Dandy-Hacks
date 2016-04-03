@@ -1,3 +1,4 @@
+import calc, parse
 
 from flask import Flask, render_template, request, jsonify
 import json
@@ -17,11 +18,18 @@ def homepage():
 @app.route('/naps', methods = ['GET','POST'])
 def getNap():
     if request.method == 'POST':
-        print("A")
         times = json.loads(request.data.decode('utf-8'))
-        print(times)
-        values = '{begin:"12:00 AM",end:"12:05 AM"}' #add any other parameters
-        print("C")
+        #print(times)
+        #data = json.loads(''.join(times))
+        #print(data)
+        #data = cgi.FieldStorage()
+        #times2 = json.loads(data[times].value)
+        #print(times2)
+        print(times[0])
+        print(times[1])
+        values = calc.daily_naps(parse.findOccupied(times), parse.calcMinutes(times[1]), parse.calcMinutes(times[0]), 0) #add any other parameters
+        #print(values)
+        return "foo"
         return jsonify(results = values)
 
 if __name__ == "__main__":
