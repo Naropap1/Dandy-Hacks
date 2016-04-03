@@ -115,7 +115,7 @@
 					<option value="PM">PM</option>
 				</select>
 				<button id="add-time" class="small-button">Add Time</button>
-				<button id="submit" class="small-button">Submit Info</button>
+				<button id="submit" class="small-button" onclick="displaynap()">Submit Info</button>
 			</div>
 			
 			<div id="busy-list">
@@ -125,7 +125,9 @@
 				
 				</div>
 			 
-			<div class="col-md-6">Display Results here</div>
+			<div class="col-md-6" id="napshere">
+				<p class="shownaps"></p>
+			</div>
 			</div>
 
 		</div>
@@ -265,6 +267,13 @@
 				console.log(timeList);
 				console.log(JSON.stringify(timeList));
 				var data = timeList;
+
+				//click to display naps
+                 // Click handler for the 'submit' button
+                  function displaynap() {
+                       $("#shownaps").html(data);
+                    }
+
 				$.ajax({
 					type: "POST",
 					data: JSON.stringify(timeList),
