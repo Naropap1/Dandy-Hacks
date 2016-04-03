@@ -18,6 +18,9 @@ occupied = [False]*288
 travel_time = 0
 nap_type = 0 #0=no emphasis, 1=power nap, 2=rest nap, 3=study nap
 
+def average(val1, val2):
+	return (val1+val2)/2
+
 #boolean function to find if a given time interval is comepletely free
 #NOTE: times are represented in 5 minute intervals
 def is_free(occupied, start_time, length):
@@ -74,19 +77,20 @@ def possible_naps(occupied):
 		if is_free(occupied, possible_times[i], 18):
 			rest_naps.append(possible_times[i])
 
+#finds the best time to take a nap that day
 def best_nap(occupied, focus):
 
 	possible_naps(occupied)
 
 	if focus == 1:			#power naps
 		pwr_weight = 3
-		rst_weight = 1.5
-		shrt_weight= 1
+		rst_weight = 1.6
+		shrt_weight= 1.1
 		stdy_weight= 1
 	elif focus == 2:		#rest naps
 		pwr_weight = 1.5
 		rst_weight = 3
-		shrt_weight= 0.5
+		shrt_weight= 0.6
 		stdy_weight= 0.5
 	elif focus == 3:		#study naps
 		pwr_weight = 1
@@ -152,3 +156,82 @@ def best_nap(occupied, focus):
 		return [top_naps[2], 9, maxval]
 	if stdy_val==maxval:
 		return [top_naps[3], 12, maxval]
+
+def add_nap(curr_naps, occupied, time, focus):
+	#order array is the order that we should try each type of nap (0 = power nap, 1 = rest nap, 2 = short nap, 3 = study naps)
+	if focus == 1:
+		order = [0,1,2,3]
+	elif focus == 2:
+		order = [1,0,2,3]
+	elif focus == 3:
+		order = [3,2,1,0]
+	else: order = [3,0,2,1]
+
+	temp_curr = curr_naps
+	intervals = [4,9,12,18]
+
+	for x in range(0, len(intervals)):
+
+		focusval = intervals[order[x]]
+
+		if ((curr_naps[time]==0) and (occupied[time]==False)):
+			if(is_free(occupied, time, focus_val)):
+				for y in range(time, time+focusval):
+					temp_curr[time] == 1
+				for z in range(time+focusval, 12):
+					temp_curr[time] == 2
+				break
+	return temp_curr
+
+def heuristic(naps):
+
+	val = 0
+	duration = sleep_time
+	diffs = []
+
+	diff_weight = 1
+	type_weight = 1
+	hours_weight = 1
+
+	for i in range(0, 288):
+		if naps[i] == 1:
+			duration += 1
+			if naps[i-1] != 1:
+				diffs.append(abs(i-naptime))
+	sum = 0
+	n = 0
+	for k in range(0, len(diffs)):
+		sum += diffs
+		n += 1
+	avg_diff = sum/n
+
+	sleep_val = 0
+	sleep_diff = 96-duration
+	if -12 < sleep_diff < 12:
+		sleep_val = 100-abs(sleep_diff)
+	else:
+		sleep_val = 100-((sleep_diff)*(sleep_diff))
+
+	val += (sleep_val*hours_weight)+((100-(avg_diff*avg_diff))*diff_weight)
+	return val
+
+
+#recursive tool to find all possible combinations of naps in a person's day
+def daily_naps_rec(curr_naps, occupied, time):
+	if time >= 288:
+		return curr_naps
+
+	temp = add_nap(curr_naps, occupied, time)
+
+	if (heuristic(daily_naps_rec(curr_naps, occupied, time+1)) > heuristic (temp)):
+		return daily_naps_rec(curr_naps, occupied, time+1)
+	else:
+		return daily_naps_rec(temp, occupied, time+1)
+
+#goal is to maintain ~ 8 hrs a day
+def daily_naps(sleep_time, focus):
+
+	duration = sleep_time
+	curr_naps = [0]*len(occupied)
+
+	#for x in range(0, len(top_naps))
