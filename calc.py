@@ -26,7 +26,7 @@ def average(val1, val2):
 	return (val1+val2)/2
 
 def set_occ(input_times):
-	a_occupied = input_times
+	a_occupied = input_times[:]
 
 def set_sleeptimes(input_wake, input_sleep, input_sleeptime):
 	a_waketime = input_wake
@@ -207,7 +207,8 @@ def add_nap(curr_naps, occupied, time, focus, nap_count):
 		order = [3,2,1,0]
 	else: order = [3,0,2,1]
 
-	temp_curr = curr_naps
+	temp_curr = []
+	temp_curr = curr_naps[:]
 	intervals = [4,9,12,18]
 
 	#for each possible nap length (order priority determined by focus parameter), try to add a nap of this kind to the schedule at the current time
@@ -224,11 +225,16 @@ def add_nap(curr_naps, occupied, time, focus, nap_count):
 			if(is_free(occupied, time, focus_val)):
 				print("nap found! at time {0} and focus_val {1}".format(time, focus_val))
 				for y in range(time, time+focus_val): # fill in the schedule for the time period of the nap
-					temp_curr[time] == 1
-				for z in range(time+focus_val, 12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
-					temp_curr[time] == 2
+					temp_curr[y] == 1
+					#print("we in loop y")
+				#print("out of loop y")
+				for z in range(time+focus_val, time+focus_val+12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
+					temp_curr[z] == 2
+					#print("in loop z")
 				nap_count += 1
+				#print("nap_count:: {0}".format(nap_count))
 				return temp_curr
+				break
 	return temp_curr
 
 #determines a heuristic value from the current state-space of nap schedule
@@ -277,7 +283,7 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 	#return the heuristic value for this schedule state-space! yaaaaaay!
 	#TODO: make this better and smarter somehow! aka tweak as needed/desired
 	val += (sleep_val*hours_weight)+((100-(avg_diff*avg_diff))*diff_weight)
-	if nap_count==0:
+	if nap_count == 0:
 		val = -9999
 	return val
 
@@ -289,16 +295,26 @@ def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, s
 		return curr_naps
 	else:
 		#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
-		if_added = add_nap(curr_naps, occupied, times[index], focus, nap_count)
-		not_added = daily_naps_rec(curr_naps, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
+		if_added = []
+		if_added = add_nap(curr_naps, occupied, times[index], focus, nap_count)[:]
+		print(if_added)
+		not_added = []
+		not_added = daily_naps_rec(curr_naps, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)[:]
 		#if making the nap here is an overall gain, make it here!
 		#otherwise, keep on truckin'
-		if (heuristic(if_added,nap_count,sleep_time,waketime, bedtime) < heuristic(not_added,nap_count,sleep_time,waketime, bedtime)):
+
+		new_val = heuristic(if_added,nap_count,sleep_time,waketime, bedtime)
+		old_val = heuristic(not_added,nap_count,sleep_time,waketime, bedtime)
+
+		print("old val: {0}, new val: {1}".format(old_val, new_val))
+
+		if (new_val <= old_val):
 			print("old one is better")
 			return not_added
 		else:
 			print("new one is better")
 			print("number of naps added: {0}".format(nap_count))
+			nap_count += 1
 			return daily_naps_rec(if_added, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
 
 #goal is to maintain ~ 8 hrs a day
@@ -313,7 +329,8 @@ def daily_naps(occupied, waketime, bedtime, sleep_time, focus):
 	#find your ideal nap schedule for today! v
 	#TODO: make this return top ~3? Could be done with an 3-long schedule-state array running as a queue
 	#TODO: make this know when it's a bad idea to take a nap and its better to not take one at all
-	schedule = daily_naps_rec(curr_naps, occupied, freetimes(occupied),0,focus,0,0,sleep_time,waketime,bedtime)
+	schedule = []
+	schedule = daily_naps_rec(curr_naps, occupied, freetimes(occupied),0,focus,0,0,sleep_time,waketime,bedtime)[:]
 	return_string = ''
 
 	#print("occupied length: {0}".format(len(occupied)))
@@ -321,12 +338,14 @@ def daily_naps(occupied, waketime, bedtime, sleep_time, focus):
 	#formulate the return string to JSON. might need debugging
 	for i in range(0,len(schedule)):
 		if (schedule[i]==1) and (schedule[i-1]==0):
-			return_string = return_string + 'begin:' + num_format(i) + ','
+			return_string = return_string + 'begin:"' + num_format(i) + '",'
 		if (schedule[i]==1) and (schedule[i+1]!=1):
-			return_string = return_string + 'end:' + num_format(i) + ','
+			return_string = return_string + 'end:"' + num_format(i) + '",'
 
 	print("return string: {0}".format(return_string))
+	print(schedule)
 
-	return json.dumps({return_string})
+	return json.dumps('{begin:"12:00 PM",end:"1:30 PM"')
+	return json.dumps(return_string)
 
 
