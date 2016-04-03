@@ -236,11 +236,11 @@ def add_nap(curr_naps, occupied, time, focus, nap_count):
 				print("nap found! at time {0} and focus_val {1}".format(time, focus_val))
 				for y in range(time, time+focus_val): # fill in the schedule for the time period of the nap
 					temp_curr[y] = 1
-					print("we in loop y")
+					#print("we in loop y")
 				#print("out of loop y")
 				for z in range(time+focus_val, time+focus_val+12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
 					temp_curr[z] = 2
-					print("in loop z")
+					#print("in loop z")
 				nap_count += 1
 				#print("nap_count:: {0}".format(nap_count))
 
@@ -288,30 +288,30 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 	sleep_val = 0
 	sleep_diff = 96-duration
 	if -12 < sleep_diff < 12:
-		sleep_val = 100-abs(sleep_diff)
+		sleep_val = 1000-abs(sleep_diff)
 	else:
-		sleep_val = 100-((sleep_diff)*(sleep_diff))
+		sleep_val = 1000-((sleep_diff)*(sleep_diff))
 
 	#return the heuristic value for this schedule state-space! yaaaaaay!
 	#TODO: make this better and smarter somehow! aka tweak as needed/desired
-	val += (sleep_val*hours_weight)+((100-((avg_diff*avg_diff)/100))*diff_weight)
-	if nap_count == 0:
-		val = -9999
+	val += (sleep_val*hours_weight)+((1000-((avg_diff*avg_diff)/1000))*diff_weight)
+	#if nap_count == 0:
+	#	val = -9999
 	return val
 
 
 #recursive tool to find all possible combinations of naps in a person's day
 def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, sleep_time, waketime, bedtime):
-	print("number of times to be checked: {0}".format(len(times)))
-	if (index >= len(times)) or (nap_count >= 3) or (depth >= 11):
+	#print("number of times to be checked: {0}".format(len(times)))
+	if (index >= len(times)) or (nap_count >= 3) or (depth >= 15):
 		return curr_naps
 	else:
 		#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
 		if_added = []
-		if_added = add_nap(curr_naps, occupied, times[index], focus, nap_count)[:]
+		if_added = list(add_nap(curr_naps, occupied, times[index], focus, nap_count))
 		#print(if_added)
 		not_added = []
-		not_added = daily_naps_rec(curr_naps, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)[:]
+		not_added = list(daily_naps_rec(curr_naps, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime))
 		#if making the nap here is an overall gain, make it here!
 		#otherwise, keep on truckin'
 
@@ -323,11 +323,14 @@ def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, s
 		if (new_val < old_val):
 			print("old one is better")
 			return not_added
-		else:
+		elif (new_val > old_val):
 			print("new one is better")
 			print("number of naps added: {0}".format(nap_count))
 			nap_count += 1
 			return daily_naps_rec(if_added, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
+		else:
+			print("same vals")
+			return not_added
 
 #goal is to maintain ~ 8 hrs a day
 def daily_naps(occupied, waketime, bedtime, focus):
