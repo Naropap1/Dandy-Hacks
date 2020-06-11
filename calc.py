@@ -1,5 +1,4 @@
-# do the math stuff here i guess?
-#
+#ALL of our calculations
 import math
 import json
 ### IDEAL NAP TIMES
@@ -239,18 +238,12 @@ def add_nap(curr_naps, occupied, time, focus, nap_count):
 												temp_curr[y] = 1
 										except IndexError:
 												pass
-												#print("we in loop y")
-								#print("out of loop y")
 								for z in range(time+focus_val, time+focus_val+12): #fill in the following hour with a relapse period, to ensure naps aren't scheduled too close together & reduce computation time
 										try:
 												temp_curr[z] = 2
 										except IndexError:
 												pass
-										#print("in loop z")
 								nap_count += 1
-								#print("nap_count:: {0}".format(nap_count))
-
-								#print(temp_curr)
 								return temp_curr
 								break
 		return temp_curr
@@ -262,6 +255,12 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 		val = 0
 		duration = sleep_time           #total number of hours slept today (starts at just overnight sleep)
 		diffs = []
+		bedtime_diffs = []
+		waketime_diffs = []
+
+		avg_diff = 0
+		avg_bt_diff = 0
+		avg_wt_diff = 0
 
 		#weighting for how important each heuristic value is
 		diff_weight = 1.5
@@ -277,48 +276,82 @@ def heuristic(naps,nap_count,sleep_time,waketime, bedtime):
 						duration += 1
 						if naps[i-1] != 1:
 								diffs.append(abs(i-nap_zone(waketime,bedtime)))
+								if (abs(bedtime-i)) < (abs(waketime-i)):
+									bedtime_diffs.append(abs(bedtime-1))
+								else: waketime_diffs.append(abs(waketime-i))
 
 		#calculate the average across all the naptime-idealtime differences
 		#TODO: make this not use an average and find a better way to calculate the difference value
-		sum = 0
+		sum1 = 0
 		n = 0
 		for k in range(0, len(diffs)):
-				sum += diffs[k]
-				n += 1
+			sum1 += diffs[k]
+			n += 1
 		if n == 0:
-				print("something went wrong, uh-oh!")
-				avg_diff = 0
+			print("something went wrong, uh-oh!")
+			avg_diff = 0
 		else: 
-				avg_diff = sum/n
+			avg_diff = sum1/n
+
+		sum2 = 0
+		n2 = 0
+		if len(bedtime_diffs) > 0:
+			for a in range(0, len(bedtime_diffs)):
+				sum2 += bedtime_diffs[a]
+				n2 +=1
+			if n2 == 0:
+				avg_bt_diff = 0
+			else:
+				avg_bt_diff = sum2/n2
+		else: avg_bt_diff = 0
+
+		sum3 = 0
+		n3 = 0
+		if len(waketime_diffs) > 0:
+			for b in range(0, len(waketime_diffs)):
+				sum3 += waketime_diffs[b]
+				n3 +=1
+			if n3 == 0:
+				avg_wt_diff = 0
+			else:
+				avg_wt_diff = sum3/n3
+		else: avg_wt_diff = 0
 
 		sleep_val = 0
 		sleep_diff = 96-duration
 
-		print("total time slept: {0}".format(sleep_diff))
+		print("total time slept: {0}".format(duration))
 
 		if -12 < sleep_diff < 12:
 				sleep_val = 1000-abs(sleep_diff)
 		else:
-				sleep_val = 1000-((sleep_diff)*10)
+				sleep_val = 1000-((sleep_diff)*(sleep_diff))
+
+		print("avg_wt_diff: {0}".format(avg_wt_diff))
+		print("avg_bt_diff: {0}".format(avg_bt_diff))
+
+		sleep_diff_val = 0
+		if avg_wt_diff == 0:
+			sleep_diff_val = avg_bt_diff
+		elif avg_bt_diff == 0:
+			sleep_diff_val = avg_wt_diff
+		else:
+			sleep_diff_val = min(avg_bt_diff, avg_wt_diff)
 
 		#return the heuristic value for this schedule state-space! yaaaaaay!
 		#TODO: make this better and smarter somehow! aka tweak as needed/desired
-		val += (sleep_val*hours_weight)+((100-((avg_diff*2)/100))*diff_weight)
-		#if nap_count == 0:
-		#       val = -9999
+		val += (sleep_val*hours_weight)+(100-((avg_diff*2)/100))*diff_weight +(1000-(sleep_diff_val))*3
 		return val
 
 
 #recursive tool to find all possible combinations of naps in a person's day
 def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, sleep_time, waketime, bedtime):
-		#print("number of times to be checked: {0}".format(len(times)))
 		if (index >= len(times)) or (nap_count > 3) or (depth >= 1000):
 				return curr_naps
 		else:
 				#alternate universe where we scheduled a nap RIGHT NOW (if something went wrong it will be the same as the curr_naps value, so it wont really matter(?))
 				if_added = []
 				if_added = list(add_nap(curr_naps, occupied, times[index], focus, nap_count))
-				#print(if_added)
 				not_added = []
 				not_added = list(daily_naps_rec(curr_naps, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime))
 				#if making the nap here is an overall gain, make it here!
@@ -330,15 +363,11 @@ def daily_naps_rec(curr_naps, occupied, times, index, focus, nap_count, depth, s
 				print("old val: {0}, new val: {1}".format(old_val, new_val))
 
 				if (new_val < old_val):
-						print("old one is better")
 						return not_added
 				elif (new_val > old_val):
-						print("new one is better")
 						nap_count += 1
-						print("number of naps added: {0}".format(nap_count))
 						return daily_naps_rec(if_added, occupied, times, index+1, focus, nap_count, depth+1, sleep_time,waketime,bedtime)
 				else:
-						print("same vals")
 						return not_added
 
 #goal is to maintain ~ 8 hrs a day
@@ -353,6 +382,10 @@ def daily_naps(occupied, waketime, bedtime, focus):
 		duration = sleep_time
 		curr_naps = [0] * len(occupied)
 
+		for x in range(0, len(curr_naps)):
+			if ((abs(x-bedtime))<24) or ((abs(x-waketime))<24):
+				curr_naps[x] = 2
+
 		#find your ideal nap schedule for today! v
 		#TODO: make this return top ~3? Could be done with an 3-long schedule-state array running as a queue
 		#TODO: make this know when it's a bad idea to take a nap and its better to not take one at all
@@ -360,11 +393,10 @@ def daily_naps(occupied, waketime, bedtime, focus):
 		schedule = daily_naps_rec(curr_naps, occupied, freetimes(occupied),0,focus,0,0,sleep_time,waketime,bedtime)[:]
 		return_string = '{'
 
-		#print("occupied length: {0}".format(len(occupied)))
 
-		#formulate the return string to JSON. might need debugging
+		#formulate the return string to JSON
 		for i in range(0,len(schedule)):
-				if (schedule[i]==1) and (schedule[i-1]==0):
+				if (schedule[i]==1) and (schedule[i-1]!=1):
 					if return_string != '{':
 						return_string = return_string + ','
 					return_string = (return_string + 'begin:"' + num_format(i) + '",')
